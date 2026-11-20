@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>eFootball 2024 - Ultimate Mobile</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: #050510;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        #app {
+            width: 100%;
+            max-width: 480px;
+            height: 100vh;
+            max-height: 900px;
+            background: radial-gradient(circle at 50% 0%, #111133 0%, #050510 100%);
+            position: relative;
+            box-shadow: 0 0 50px rgba(0, 255, 128, 0.15);
+            border: 1px solid #1a1a3a;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ÜST BAR */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: rgba(10, 10, 20, 0.95);
+            border-bottom: 1px solid #1a1a3a;
+            z-index: 100;
+            flex-shrink: 0;
+        }
+        .logo { font-size: 18px; font-weight: 700; letter-spacing: 1px; }
+        .logo span { color: #00ff80; }
+        .currency { display: flex; gap: 8px; font-weight: 600; font-size: 14px; }
+        .currency-item {
+            background: rgba(0, 255, 128, 0.1);
+            border: 1px solid rgba(0, 255, 128, 0.3);
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #00ff80;
+        }
+
+        /* ANA İÇERİK */
+        #main-content {
+            flex: 1;
+            position: relative;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        .screen {
+            display: none;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            border-left: 4px solid #00ff80;
+            padding-left: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* MENÜ */
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .menu-btn {
+            background: linear-gradient(135deg, #1a1a3a, #0a0a1a);
+            border: 1px solid #2a2a4a;
+            border-radius: 12px;
+            padding: 20px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .menu-btn:active { border-color: #00ff80; box-shadow: 0 0 20px rgba(0,255,128,0.2); transform: scale(0.97); }
+        .menu-btn .icon { font-size: 32px; }
+        .menu-btn .text { font-size: 15px; font-weight: 700; color: #ddd; }
+
+        /* PAKETLER */
+        .pack-item {
+            background: linear-gradient(90deg, #111133, #0a0a1a);
+            border: 1px solid #2a2a4a;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .pack-item:active { border-color: #00ff80; transform: scale(0.98); }
+        .pack-info h3 { font-size: 17px; color: #fff; margin-bottom: 4px; }
+        .pack-info p { font-size: 11px; color: #888; }
+        .pack-badge {
+            position: absolute; top: 0; right: 0;
+            background: #ff0055; color: white;
+            font-size: 9px; font-weight: 700;
+            padding: 2px 8px; border-bottom-left-radius: 8px;
+        }
+        .pack-badge.epic { background: linear-gradient(90deg, #ff00ff, #aa00ff); }
+        .pack-badge.bigtime { background: linear-gradient(90deg, #ffaa00, #ff5500); }
+
+        /* KART (Paket Açma) */
+        #pack-opening-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            padding: 20px;
+            background: radial-gradient(circle at center, #1a1a3a 0%, #000 100%);
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 50;
+        }
+        #pack-opening-screen.active { display: flex; }
+        .card-container { perspective: 1000px; width: 260px; height: 380px; margin-bottom: 15px; }
+        .player-card {
+            width: 100%; height: 100%; position: relative;
+            transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        }
+        .player-card.flipped { transform: rotateY(180deg); }
+        .card-face {
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden; border-radius: 15px;
+            overflow: hidden; display: flex; flex-direction: column;
+            padding: 12px;
+        }
+        .card-back {
+            background: linear-gradient(135deg, #0a0a1a, #1a1a3a);
+            border: 2px solid #2a2a4a;
+            transform: rotateY(180deg);
+            justify-content: center; align-items: center;
+        }
+        .card-front {
+            background: linear-gradient(135deg, #0f1a2a, #1a0f2a);
+            border: 2px solid #00ff80;
+            box-shadow: inset 0 0 20px rgba(0,255,128,0.2);
+        }
+        .card-front.epic { border-color: #ff00ff; box-shadow: inset 0 0 20px rgba(255,0,255,0.2); }
+        .card-front.bigtime { border-color: #ffaa00; box-shadow: inset 0 0 20px rgba(255,170,0,0.2); }
+        .card-top { display: flex; justify-content: space-between; }
+        .card-rating { font-size: 42px; font-weight: 900; line-height: 1; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+        .card-pos { font-size: 16px; font-weight: 700; color: #00ff80; }
+        .card-img-area { flex: 1; display: flex; justify-content: center; align-items: center; font-size: 70px; }
+        .card-bottom { margin-top: auto; }
+        .card-name { font-size: 20px; font-weight: 700; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 4px; margin-bottom: 8px; }
+        .card-skills { display: flex; flex-wrap: wrap; gap: 4px; }
+        .skill-tag { font-size: 9px; background: rgba(0,255,128,0.2); padding: 2px 6px; border-radius: 4px; color: #00ff80; }
+
+        /* MAÇ & ANTRENMAN EKRANI */
+        #match-screen, #freekick-screen {
+            display: none; flex-direction: column; align-items: center;
+            background: #0a0a15; position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%; z-index: 60;
+        }
+        #match-screen.active, #freekick-screen.active { display: flex; }
+
+        .stadium-banner {
+            width: 100%; background: #111; color: #00ff80;
+            font-weight: 700; font-size: 13px; letter-spacing: 2px;
+            padding: 6px 0; overflow: hidden; white-space: nowrap;
+            border-bottom: 1px solid #333; position: relative;
+            flex-shrink: 0;
+        }
+        .stadium-banner.bottom { border-bottom: none; border-top: 1px solid #333; }
+        .banner-text {
+            display: inline-block; padding-left: 100%;
+            animation: marquee 10s linear infinite;
+            text-shadow: 0 0 5px #00ff80;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .match-hud {
+            width: 100%; display: flex; justify-content: space-between;
+            padding: 8px 15px; background: rgba(0,0,0,0.5);
+            font-size: 20px; font-weight: 700;
+            flex-shrink: 0;
+        }
+        .score { color: #fff; }
+        .timer { color: #ffaa00; }
+
+        .canvas-container {
+            flex: 1; width: 100%; display: flex; justify-content: center; align-items: center;
+            background: #000; position: relative; overflow: hidden;
+        }
+        canvas { background: #1a3320; width: 100%; height: 100%; object-fit: contain; display: block; }
+
+        .match-controls {
+            width: 100%; padding: 10px; background: #0a0a15;
+            display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+        .ctrl-btn {
+            background: #222; border: 1px solid #444; color: #fff;
+            width: 55px; height: 55px; border-radius: 50%;
+            font-size: 22px; display: flex; justify-content: center; align-items: center;
+            touch-action: none;
+        }
+        .ctrl-btn:active { background: #00ff80; color: #000; }
+        .match-info { text-align: center; color: #888; font-size: 11px; width: 100%; margin-bottom: 5px; }
+
+        /* KOLEKSİYON */
+        .col-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .col-card {
+            background: #111133; border: 1px solid #2a2a4a;
+            border-radius: 8px; padding: 8px; text-align: center;
+            position: relative;
+        }
+        .col-card.epic { border-color: #ff00ff; }
+        .col-card.bigtime { border-color: #ffaa00; }
+        .col-card.starter { border-color: #00aaff; }
+        .col-rating { font-size: 24px; font-weight: 900; color: #00ff80; }
+        .col-name { font-size: 11px; font-weight: 700; margin: 3px 0; }
+        .col-pos { font-size: 9px; color: #888; background: #222; padding: 1px 4px; border-radius: 3px; display: inline-block; }
+
+        .back-btn {
+            margin-top: 15px; padding: 12px; width: 100%;
+            background: transparent; border: 2px solid #00ff80;
+            color: #00ff80; font-weight: 700; font-size: 15px;
+            border-radius: 8px; cursor: pointer; transition: 0.2s;
+        }
+        .back-btn:active { background: #00ff80; color: #000; }
+        .btn-primary {
+            background: linear-gradient(135deg, #00ff80, #00aa55);
+            color: #000; border: none; padding: 14px 30px;
+            font-weight: 700; font-size: 16px; border-radius: 8px;
+            cursor: pointer; width: 100%; max-width: 260px;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* ANTRENMAN EKRANI ÖZEL */
+        #freekick-screen .canvas-container {
+            background: #1a3320;
+        }
+        .freekick-hud {
+            width: 100%; display: flex; justify-content: space-between;
+            padding: 8px 15px; background: rgba(0,0,0,0.5);
+            font-size: 16px; font-weight: 700;
+            flex-shrink: 0;
+            color: #fff;
+        }
+        .freekick-info {
+            text-align: center; color: #00ff80; font-size: 13px;
+            padding: 5px; width: 100%;
+            flex-shrink: 0;
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <!-- Üst Bar -->
+    <div class="top-bar">
+        <div class="logo">e<span>Football</span> 24</div>
+        <div class="currency">
+            <div class="currency-item">🪙 ∞</div>
+            <div class="currency-item">💎 ∞</div>
+        </div>
+    </div>
+
+    <!-- Ana İçerik -->
+    <div id="main-content">
+        
+        <!-- 1. ANA MENÜ -->
+        <div id="menu-screen" class="screen active">
+            <div class="section-title">Ana Menü</div>
+            <div class="menu-grid">
+                <div class="menu-btn" onclick="navTo('packs')">
+                    <span class="icon">📦</span><span class="text">Paketler</span>
+                </div>
+                <div class="menu-btn" onclick="navTo('collection')">
+                    <span class="icon">👥</span><span class="text">Koleksiyon</span>
+                </div>
+                <div class="menu-btn" onclick="startMatch()" style="grid-column: span 1; background: linear-gradient(135deg, #003311, #0a0a1a); border-color: #00ff80;">
+                    <span class="icon">⚽</span><span class="text" style="color:#00ff80;">MAÇ YAP</span>
+                </div>
+                <div class="menu-btn" onclick="navTo('training')" style="grid-column: span 1; background: linear-gradient(135deg, #001133, #0a0a1a); border-color: #00aaff;">
+                    <span class="icon">🎯</span><span class="text" style="color:#00aaff;">ANTRENMAN</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. PAKET LİSTESİ -->
+        <div id="packs-screen" class="screen">
+            <div class="section-title">Mağaza (Sınırsız)</div>
+            <div id="pack-list"></div>
+            <button class="back-btn" onclick="navTo('menu')">Geri Dön</button>
+        </div>
+
+        <!-- 3. KOLEKSİYON -->
+        <div id="collection-screen" class="screen">
+            <div class="section-title">Koleksiyonum</div>
+            <div id="collection-grid" class="col-grid"></div>
+            <button class="back-btn" onclick="navTo('menu')">Geri Dön</button>
+        </div>
+
+        <!-- 4. ANTRENMAN MENÜSÜ -->
+        <div id="training-screen" class="screen">
+            <div class="section-title">Antrenman</div>
+            <div class="menu-grid">
+                <div class="menu-btn" onclick="startFreekick()" style="grid-column: span 2; background: linear-gradient(135deg, #001a33, #0a0a1a); border-color: #00aaff;">
+                    <span class="icon">🎯</span><span class="text" style="color:#00aaff;">SERBEST VURUŞ</span>
+                </div>
+            </div>
+            <button class="back-btn" onclick="navTo('menu')">Geri Dön</button>
+        </div>
+
+    </div>
+
+    <!-- PAKET AÇMA EKRANI -->
+    <div id="pack-opening-screen">
+        <div class="card-container">
+            <div class="player-card" id="3d-card">
+                <div class="card-face card-back">
+                    <div style="font-size: 36px; color: #00ff80; margin-bottom: 10px;">eFootball</div>
+                    <div style="color: #888; font-size: 14px;">Kart Açılıyor...</div>
+                </div>
+                <div class="card-face card-front" id="card-front">
+                    <div class="card-top">
+                        <div>
+                            <div class="card-rating" id="card-rating">--</div>
+                            <div class="card-pos" id="card-pos">--</div>
+                        </div>
+                        <div style="font-size: 22px;" id="card-club">⚽</div>
+                    </div>
+                    <div class="card-img-area" id="card-img">👤</div>
+                    <div class="card-bottom">
+                        <div class="card-name" id="card-name">---</div>
+                        <div class="card-skills" id="card-skills"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="btn-primary" id="btn-open-pack" onclick="openPack()">PAKETİ AÇ</button>
+        <button class="back-btn" style="max-width:260px; margin-top:10px;" onclick="closePackScreen()">İPTAL</button>
+    </div>
+
+    <!-- MAÇ EKRANI -->
+    <div id="match-screen">
+        <div class="stadium-banner">
+            <div class="banner-text">⚡ SELÇUK EYMEN ⚡ SELÇUK EYMEN ⚡ SELÇUK EYMEN ⚡ SELÇUK EYMEN ⚡ SELÇUK EYMEN ⚡</div>
+        </div>
+        <div class="match-hud">
+            <div class="score">Sen <span id="p-score">0</span> - <span id="e-score">0</span> Rakip</div>
+            <div class="timer" id="match-timer">01:30</div>
+        </div>
+        <div class="canvas-container">
+            <canvas id="pitch" width="400" height="600"></canvas>
+        </div>
+        <div class="match-info">Kontroller: Yön Tuşları veya WASD / Ekran Butonları</div>
+        <div class="match-controls">
+            <div class="ctrl-btn" onmousedown="keys['ArrowUp']=true" onmouseup="keys['ArrowUp']=false" ontouchstart="keys['ArrowUp']=true;event.preventDefault()" ontouchend="keys['ArrowUp']=false;event.preventDefault()">⬆️</div>
+            <div class="ctrl-btn" onmousedown="keys['ArrowLeft']=true" onmouseup="keys['ArrowLeft']=false" ontouchstart="keys['ArrowLeft']=true;event.preventDefault()" ontouchend="keys['ArrowLeft']=false;event.preventDefault()">⬅️</div>
+            <div class="ctrl-btn" onmousedown="keys['ArrowDown']=true" onmouseup="keys['ArrowDown']=false" ontouchstart="keys['ArrowDown']=true;event.preventDefault()" ontouchend="keys['ArrowDown']=false;event.preventDefault()">⬇️</div>
+            <div class="ctrl-btn" onmousedown="keys['ArrowRight']=true" onmouseup="keys['ArrowRight']=false" ontouchstart="keys['ArrowRight']=true;event.preventDefault()" ontouchend="keys['ArrowRight']=false;event.preventDefault()">➡️</div>
+        </div>
+        <div class="stadium-banner bottom">
+            <div class="banner-text" style="animation-direction: reverse;">⭐ SELÇUK EYMEN ⭐ SELÇUK EYMEN ⭐ SELÇUK EYMEN ⭐ SELÇUK EYMEN ⭐ SELÇUK EYMEN ⭐</div>
+        </div>
+        <button class="back-btn" style="margin: 5px 0 10px; max-width: 200px; padding: 8px;" onclick="exitMatch()">Maçtan Çık</button>
+    </div>
+
+    <!-- SERBEST VURUŞ ANTRENMAN EKRANI -->
+    <div id="freekick-screen">
+        <div class="stadium-banner">
+            <div class="banner-text">🎯 SERBEST VURUŞ ANTRENMANI 🎯 SELÇUK EYMEN 🎯</div>
+        </div>
+        <div class="freekick-hud">
+            <div>Gol: <span id="fk-score">0</span></div>
+            <div>Deneme: <span id="fk-attempts">0</span></div>
+        </div>
+        <div class="freekick-info">Topa bas, yukarı doğru sürükle ve bırak!</div>
+        <div class="canvas-container">
+            <canvas id="freekick-canvas" width="400" height="600"></canvas>
+        </div>
+        <button class="back-btn" style="margin: 5px 0 10px; max-width: 200px; padding: 10px;" onclick="exitFreekick()">Antrenmandan Çık</button>
+    </div>
+</div>
+
+<script>
+    // ========== VERİ TANIMLARI ==========
+    const PLAYERS = [
+        // Başlangıç 11'i (Dünyanın En İyi 11'i - 4-3-3)
+        { id: 's_gk', name: 'T. Courtois', rating: 92, pos: 'GK', club: 'Real Madrid', skills: ['Refleks', 'Uzun Pas', 'Hava Topu'], rarity: 'starter', avatar: '🧤' },
+        { id: 's_lb', name: 'A. Davies', rating: 91, pos: 'LB', club: 'Bayern', skills: ['Hız', 'Çalım', 'Pas'], rarity: 'starter', avatar: '⚡' },
+        { id: 's_cb1', name: 'V. van Dijk', rating: 93, pos: 'CB', club: 'Liverpool', skills: ['Defans', 'Kafa', 'Liderlik'], rarity: 'starter', avatar: '🛡️' },
+        { id: 's_cb2', name: 'A. Rüdiger', rating: 91, pos: 'CB', club: 'Real Madrid', skills: ['Sertlik', 'Hava Topu', 'Markaj'], rarity: 'starter', avatar: '🦁' },
+        { id: 's_rb', name: 'A. Hakimi', rating: 91, pos: 'RB', club: 'PSG', skills: ['Hız', 'Orta', 'Çalım'], rarity: 'starter', avatar: '💨' },
+        { id: 's_dm', name: 'Rodri', rating: 93, pos: 'DMF', club: 'Man City', skills: ['Pas', 'Defans', 'Şut'], rarity: 'starter', avatar: '⚙️' },
+        { id: 's_cm1', name: 'K. De Bruyne', rating: 94, pos: 'CMF', club: 'Man City', skills: ['Pas', 'Şut', 'Orta'], rarity: 'starter', avatar: '🎯' },
+        { id: 's_cm2', name: 'J. Bellingham', rating: 93, pos: 'CMF', club: 'Real Madrid', skills: ['Fizik', 'Şut', 'Pas'], rarity: 'starter', avatar: '🌟' },
+        { id: 's_lw', name: 'K. Mbappe', rating: 94, pos: 'LWF', club: 'PSG', skills: ['Hız', 'Şut', 'Çalım'], rarity: 'starter', avatar: '🐢' },
+        { id: 's_st', name: 'E. Haaland', rating: 94, pos: 'CF', club: 'Man City', skills: ['Şut', 'Fizik', 'Kafa'], rarity: 'starter', avatar: '🤖' },
+        { id: 's_rw', name: 'Vinicius Jr', rating: 93, pos: 'RWF', club: 'Real Madrid', skills: ['Hız', 'Çalım', 'Şut'], rarity: 'starter', avatar: '🇧🇷' },
+
+        // Paketlerden çıkacak efsaneler
+        { id: 'm_101', name: 'L. Messi', rating: 101, pos: 'CF', club: '🇦🇷', skills: ['Top Sürme', 'Şut', 'Pas'], rarity: 'bigtime', avatar: '🐐' },
+        { id: 'm_102', name: 'L. Messi', rating: 102, pos: 'RWF', club: '🔵🔴', skills: ['Momentum Dribbling', 'Blitz Curler', 'Visionary Pass'], rarity: 'bigtime', avatar: '🐐' },
+        { id: 'm_109', name: 'Messi', rating: 109, pos: 'RWF', club: '🔵🔴', skills: ['Momentum Dribbling', 'Blitz Curler', 'Visionary Pass'], rarity: 'epic', avatar: '🐐' },
+        { id: 'r_103', name: 'C. Ronaldo', rating: 103, pos: 'LWF', club: '⚪', skills: ['Phenomenal Finishing', 'Ronaldo Chop', 'Heading'], rarity: 'epic', avatar: '👑' },
+        { id: 'r_101', name: 'C. Ronaldo', rating: 101, pos: 'LMF', club: '🔴', skills: ['Knuckle Shot', 'Step On Skill', 'Long Range Drive'], rarity: 'epic', avatar: '👑' },
+        { id: 's_101', name: 'L. Suarez', rating: 101, pos: 'CF', club: '🔵🔴', skills: ['Phenomenal Finishing', 'Acrobatic Finishing', 'First-time Shot'], rarity: 'epic', avatar: '🦷' },
+        { id: 'n_100', name: 'Neymar Jr', rating: 100, pos: 'LWF', club: '🔵🔴', skills: ['Flip Flap', 'Neymar Chop', 'Chip Shot Control'], rarity: 'epic', avatar: '🎭' }
+    ];
+
+    const PACKS = [
+        { id: 'p1', name: 'Big Time: L. Messi', desc: 'Efsanevi Messi kartları.', badge: 'BIG TIME', bClass: 'bigtime', pool: ['m_101', 'm_102'] },
+        { id: 'p2', name: "One Man's Army: Messi", desc: '109 OVR Epic Messi fırsatı!', badge: 'EPIC', bClass: 'epic', pool: ['m_109', 'm_102'] },
+        { id: 'p3', name: 'Epic: Cristiano Ronaldo', desc: 'Efsanevi Ronaldo kartları.', badge: 'EPIC', bClass: 'epic', pool: ['r_103', 'r_101'] },
+        { id: 'p4', name: 'FC Barcelona 14-15', desc: 'Messi, Suarez ve Neymar!', badge: 'EPIC', bClass: 'epic', pool: ['m_102', 's_101', 'n_100'] }
+    ];
+
+    // ========== DURUM ==========
+    let collection = JSON.parse(localStorage.getItem('efootball_col')) || [];
+    
+    // Başlangıç 11'ini otomatik ekle (eğer koleksiyon boşsa)
+    if (collection.length === 0) {
+        const starters = PLAYERS.filter(p => p.rarity === 'starter').map(p => p.id);
+        collection = [...starters];
+        localStorage.setItem('efootball_col', JSON.stringify(collection));
+    }
+
+    let currentPackPool = [];
+    let isFlipped = false;
+
+    // ========== MENÜ NAVİGASYONU ==========
+    function navTo(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        const target = document.getElementById(screenId + '-screen');
+        if(target) target.classList.add('active');
+        
+        if(screenId === 'collection') renderCollection();
+        if(screenId === 'packs') renderPacks();
+    }
+
+    // ========== PAKET AÇMA ==========
+    function renderPacks() {
+        const list = document.getElementById('pack-list');
+        list.innerHTML = '';
+        PACKS.forEach(p => {
+            const div = document.createElement('div');
+            div.className = 'pack-item';
+            div.innerHTML = `
+                <div class="pack-badge ${p.bClass}">${p.badge}</div>
+                <div class="pack-info">
+                    <h3>${p.name}</h3>
+                    <p>${p.desc}</p>
+                </div>
+                <div style="color:#00ff80; font-weight:700; font-size:14px;">AÇ</div>
+            `;
+            div.onclick = () => setupPack(p);
+            list.appendChild(div);
+        });
+    }
+
+    function setupPack(pack) {
+        currentPackPool = pack.pool;
+        document.getElementById('pack-opening-screen').classList.add('active');
+        const card = document.getElementById('3d-card');
+        card.classList.remove('flipped');
+        document.getElementById('btn-open-pack').disabled = false;
+        document.getElementById('btn-open-pack').textContent = 'PAKETİ AÇ';
+        isFlipped = false;
+    }
+
+    function closePackScreen() {
+        document.getElementById('pack-opening-screen').classList.remove('active');
+    }
+
+    function openPack() {
+        const btn = document.getElementById('btn-open-pack');
+        if (isFlipped) { closePackScreen(); return; }
+
+        btn.disabled = true;
+        btn.textContent = 'AÇILIYOR...';
+
+        const randId = currentPackPool[Math.floor(Math.random() * currentPackPool.length)];
+        const player = PLAYERS.find(p => p.id === randId);
+
+        if(!collection.includes(player.id)) {
+            collection.push(player.id);
+            localStorage.setItem('efootball_col', JSON.stringify(collection));
+        }
+
+        document.getElementById('card-rating').textContent = player.rating;
+        document.getElementById('card-pos').textContent = player.pos;
+        document.getElementById('card-club').textContent = player.club;
+        document.getElementById('card-img').textContent = player.avatar;
+        document.getElementById('card-name').textContent = player.name;
+        
+        const skillContainer = document.getElementById('card-skills');
+        skillContainer.innerHTML = '';
+        player.skills.forEach(s => {
+            const span = document.createElement('span');
+            span.className = 'skill-tag';
+            span.textContent = s;
+            skillContainer.appendChild(span);
+        });
+
+        const frontFace = document.getElementById('card-front');
+        frontFace.className = 'card-face card-front ' + player.rarity;
+
+        setTimeout(() => {
+            document.getElementById('3d-card').classList.add('flipped');
+            isFlipped = true;
+            btn.disabled = false;
+            btn.textContent = 'TAMAM';
+        }, 400);
+    }
+
+    // ========== KOLEKSİYON ==========
+    function renderCollection() {
+        const grid = document.getElementById('collection-grid');
+        grid.innerHTML = '';
+        if (collection.length === 0) {
+            grid.innerHTML = '<div style="grid-column:span 2; text-align:center; color:#888; padding:20px;">Henüz kartın yok. Paket aç!</div>';
+            return;
+        }
+        collection.forEach(id => {
+            const p = PLAYERS.find(x => x.id === id);
+            if(!p) return;
+            const div = document.createElement('div');
+            div.className = `col-card ${p.rarity}`;
+            div.innerHTML = `
+                <div class="col-rating">${p.rating}</div>
+                <div class="col-name">${p.name}</div>
+                <div class="col-pos">${p.pos}</div>
+                <div style="font-size:22px; margin-top:3px;">${p.avatar}</div>
+            `;
+            grid.appendChild(div);
+        });
+    }
+
+    // ========== MAÇ MOTORU ==========
+    let canvas, ctx;
+    let matchInterval;
+    let animationId;
+    let gameActive = false;
+    let playerScore = 0;
+    let enemyScore = 0;
+    let timeLeft = 90;
+    let timerInterval;
+
+    const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, w: false, a: false, s: false, d: false };
+    const ball = { x: 200, y: 300, radius: 8, vx: 0, vy: 0, friction: 0.98 };
+    const player = { x: 200, y: 500, radius: 15, speed: 5, color: '#00ff80' };
+    const enemy = { x: 200, y: 100, radius: 15, speed: 3.5, color: '#ff0055' };
+    const FIELD = { w: 400, h: 600, goalWidth: 120 };
+
+    function startMatch() {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('match-screen').classList.add('active');
+        
+        canvas = document.getElementById('pitch');
+        ctx = canvas.getContext('2d');
+        
+        playerScore = 0; enemyScore = 0; timeLeft = 90; gameActive = true;
+        updateScoreUI();
+        resetPositions(true);
+
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+        
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            if(timeLeft > 0 && gameActive) {
+                timeLeft--;
+                let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                let s = (timeLeft % 60).toString().padStart(2, '0');
+                document.getElementById('match-timer').textContent = `${m}:${s}`;
+                if(timeLeft === 0) endMatch();
+            }
+        }, 1000);
+
+        if(animationId) cancelAnimationFrame(animationId);
+        gameLoop();
+    }
+
+    function exitMatch() {
+        gameActive = false;
+        clearInterval(timerInterval);
+        cancelAnimationFrame(animationId);
+        window.removeEventListener('keydown', handleKeyDown);
+        window.removeEventListener('keyup', handleKeyUp);
+        document.getElementById('match-screen').classList.remove('active');
+        navTo('menu');
+    }
+
+    function handleKeyDown(e) {
+        if(keys.hasOwnProperty(e.key)) keys[e.key] = true;
+        if(keys.hasOwnProperty(e.key.toLowerCase())) keys[e.key.toLowerCase()] = true;
+        if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
+    }
+    function handleKeyUp(e) {
+        if(keys.hasOwnProperty(e.key)) keys[e.key] = false;
+        if(keys.hasOwnProperty(e.key.toLowerCase())) keys[e.key.toLowerCase()] = false;
+    }
+
+    function resetPositions(kickoff = false) {
+        ball.x = FIELD.w / 2; ball.y = FIELD.h / 2; ball.vx = 0; ball.vy = 0;
+        if(kickoff) {
+            player.x = FIELD.w / 2; player.y = FIELD.h - 100;
+            enemy.x = FIELD.w / 2; enemy.y = 100;
+        }
+    }
+
+    function updateScoreUI() {
+        document.getElementById('p-score').textContent = playerScore;
+        document.getElementById('e-score').textContent = enemyScore;
+    }
+
+    function endMatch() {
+        gameActive = false;
+        let msg = playerScore > enemyScore ? "MAÇI KAZANDIN! 🏆" : (playerScore < enemyScore ? "MAÇI KAYBETTİN! ❌" : "BERABERE! 🤝");
+        alert(`Maç Bitti!\nSen ${playerScore} - ${enemyScore} Rakip\n\n${msg}`);
+        exitMatch();
+    }
+
+    function gameLoop() {
+        if(!gameActive) return;
+        update();
+        draw();
+        animationId = requestAnimationFrame(gameLoop);
+    }
+
+    function update() {
+        let dx = 0, dy = 0;
+        if(keys.ArrowUp || keys.w) dy -= 1;
+        if(keys.ArrowDown || keys.s) dy += 1;
+        if(keys.ArrowLeft || keys.a) dx -= 1;
+        if(keys.ArrowRight || keys.d) dx += 1;
+
+        if(dx !== 0 || dy !== 0) {
+            const len = Math.sqrt(dx*dx + dy*dy);
+            player.x += (dx/len) * player.speed;
+            player.y += (dy/len) * player.speed;
+        }
+
+        player.x = Math.max(player.radius, Math.min(FIELD.w - player.radius, player.x));
+        player.y = Math.max(player.radius, Math.min(FIELD.h - player.radius, player.y));
+
+        let exDx = ball.x - enemy.x;
+        let exDy = ball.y - enemy.y;
+        let exDist = Math.sqrt(exDx*exDx + exDy*exDy);
+        if(exDist > 0) {
+            enemy.x += (exDx/exDist) * enemy.speed;
+            enemy.y += (exDy/exDist) * enemy.speed;
+        }
+        enemy.x = Math.max(enemy.radius, Math.min(FIELD.w - enemy.radius, enemy.x));
+        enemy.y = Math.max(enemy.radius, Math.min(FIELD.h - enemy.radius, enemy.y));
+
+        handleCollision(player, ball, 1);
+        handleCollision(enemy, ball, 1);
+
+        ball.x += ball.vx;
+        ball.y += ball.vy;
+        ball.vx *= ball.friction;
+        ball.vy *= ball.friction;
+
+        if(ball.x - ball.radius < 0) { ball.x = ball.radius; ball.vx *= -0.8; }
+        if(ball.x + ball.radius > FIELD.w) { ball.x = FIELD.w - ball.radius; ball.vx *= -0.8; }
+
+        const goalLeft = (FIELD.w - FIELD.goalWidth) / 2;
+        const goalRight = goalLeft + FIELD.goalWidth;
+
+        if(ball.y - ball.radius < 0) {
+            if(ball.x > goalLeft && ball.x < goalRight) {
+                playerScore++; updateScoreUI(); resetPositions(false);
+                ball.y = FIELD.h / 2 + 50;
+            } else { ball.y = ball.radius; ball.vy *= -0.8; }
+        }
+        if(ball.y + ball.radius > FIELD.h) {
+            if(ball.x > goalLeft && ball.x < goalRight) {
+                enemyScore++; updateScoreUI(); resetPositions(false);
+                ball.y = FIELD.h / 2 - 50;
+            } else { ball.y = FIELD.h - ball.radius; ball.vy *= -0.8; }
+        }
+    }
+
+    function handleCollision(entity, b, power) {
+        let dx = b.x - entity.x;
+        let dy = b.y - entity.y;
+        let dist = Math.sqrt(dx*dx + dy*dy);
+        if(dist < entity.radius + b.radius) {
+            let angle = Math.atan2(dy, dx);
+            let force = power * 8;
+            b.vx = Math.cos(angle) * force;
+            b.vy = Math.sin(angle) * force;
+            b.x = entity.x + Math.cos(angle) * (entity.radius + b.radius + 1);
+            b.y = entity.y + Math.sin(angle) * (entity.radius + b.radius + 1);
+        }
+    }
+
+    function draw() {
+        ctx.fillStyle = '#1e3b26';
+        ctx.fillRect(0, 0, FIELD.w, FIELD.h);
+        ctx.fillStyle = '#23452c';
+        for(let i=0; i<FIELD.h; i+=40) {
+            if((i/40) % 2 === 0) ctx.fillRect(0, i, FIELD.w, 40);
+        }
+
+        ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(0, FIELD.h/2); ctx.lineTo(FIELD.w, FIELD.h/2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(FIELD.w/2, FIELD.h/2, 50, 0, Math.PI*2); ctx.stroke();
+
+        const goalLeft = (FIELD.w - FIELD.goalWidth) / 2;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(goalLeft, 0); ctx.lineTo(goalLeft, 30); ctx.lineTo(goalLeft + FIELD.goalWidth, 30); ctx.lineTo(goalLeft + FIELD.goalWidth, 0); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(goalLeft, FIELD.h); ctx.lineTo(goalLeft, FIELD.h - 30); ctx.lineTo(goalLeft + FIELD.goalWidth, FIELD.h - 30); ctx.lineTo(goalLeft + FIELD.goalWidth, FIELD.h); ctx.stroke();
+
+        ctx.fillStyle = enemy.color;
+        ctx.beginPath(); ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+
+        ctx.fillStyle = player.color;
+        ctx.beginPath(); ctx.arc(player.x, player.y, player.radius, 0, Math.PI*2); ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#000'; ctx.lineWidth = 1; ctx.stroke();
+    }
+
+    // ========== SERBEST VURUŞ ANTRENMANI ==========
+    let fkCanvas, fkCtx;
+    let fkAnimationId;
+    let fkActive = false;
+    let fkScore = 0;
+    let fkAttempts = 0;
+    let fkBall = { x: 200, y: 500, radius: 8, vx: 0, vy: 0, friction: 0.98 };
+    let fkGoalkeeper = { x: 200, y: 70, radius: 20, speed: 2.5 };
+    let fkDragging = false;
+    let fkDragStart = { x: 0, y: 0 };
+    let fkDragCurrent = { x: 0, y: 0 };
+    let fkCanShoot = true;
+    let fkGoalFlash = 0; // gol animasyonu için sayaç
+
+    const FK_FIELD = { w: 400, h: 600, goalWidth: 140, goalTop: 40 };
+
+    function startFreekick() {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('freekick-screen').classList.add('active');
+        
+        fkCanvas = document.getElementById('freekick-canvas');
+        fkCtx = fkCanvas.getContext('2d');
+        
+        fkScore = 0; fkAttempts = 0;
+        document.getElementById('fk-score').textContent = fkScore;
+        document.getElementById('fk-attempts').textContent = fkAttempts;
+        
+        resetFreekick();
+        fkActive = true;
+
+        // Olay dinleyicileri (mobil ve masaüstü)
+        fkCanvas.addEventListener('mousedown', handleFkDown);
+        fkCanvas.addEventListener('mousemove', handleFkMove);
+        fkCanvas.addEventListener('mouseup', handleFkUp);
+        fkCanvas.addEventListener('touchstart', handleFkDown, {passive: false});
+        fkCanvas.addEventListener('touchmove', handleFkMove, {passive: false});
+        fkCanvas.addEventListener('touchend', handleFkUp, {passive: false});
+
+        if(fkAnimationId) cancelAnimationFrame(fkAnimationId);
+        fkGameLoop();
+    }
+
+    function exitFreekick() {
+        fkActive = false;
+        cancelAnimationFrame(fkAnimationId);
+        fkCanvas.removeEventListener('mousedown', handleFkDown);
+        fkCanvas.removeEventListener('mousemove', handleFkMove);
+        fkCanvas.removeEventListener('mouseup', handleFkUp);
+        fkCanvas.removeEventListener('touchstart', handleFkDown);
+        fkCanvas.removeEventListener('touchmove', handleFkMove);
+        fkCanvas.removeEventListener('touchend', handleFkUp);
+        document.getElementById('freekick-screen').classList.remove('active');
+        navTo('training');
+    }
+
+    function resetFreekick() {
+        fkBall.x = 200;
+        fkBall.y = 500;
+        fkBall.vx = 0;
+        fkBall.vy = 0;
+        fkGoalkeeper.x = 200;
+        fkGoalkeeper.y = 70;
+        fkCanShoot = true;
+        fkDragging = false;
+        fkGoalFlash = 0;
+    }
+
+    function getCanvasPos(e) {
+        const rect = fkCanvas.getBoundingClientRect();
+        let clientX, clientY;
+        if(e.touches) {
+            clientX = e.touches[0].clientX;
+            clientY = e.touches[0].clientY;
+        } else {
+            clientX = e.clientX;
+            clientY = e.clientY;
+        }
+        // Canvas ölçekleme faktörü
+        const scaleX = fkCanvas.width / rect.width;
+        const scaleY = fkCanvas.height / rect.height;
+        return {
+            x: (clientX - rect.left) * scaleX,
+            y: (clientY - rect.top) * scaleY
+        };
+    }
+
+    function handleFkDown(e) {
+        if(!fkCanShoot) return;
+        e.preventDefault();
+        const pos = getCanvasPos(e);
+        // Topa yakın mı?
+        const dx = pos.x - fkBall.x;
+        const dy = pos.y - fkBall.y;
+        if(Math.sqrt(dx*dx + dy*dy) < 40) {
+            fkDragging = true;
+            fkDragStart = { x: pos.x, y: pos.y };
+            fkDragCurrent = { x: pos.x, y: pos.y };
+        }
+    }
+
+    function handleFkMove(e) {
+        if(!fkDragging) return;
+        e.preventDefault();
+        const pos = getCanvasPos(e);
+        fkDragCurrent = { x: pos.x, y: pos.y };
+    }
+
+    function handleFkUp(e) {
+        if(!fkDragging) return;
+        e.preventDefault();
+        fkDragging = false;
+        
+        // Şut vektörü: topun merkezinden sürükleme yönüne ters
+        let dx = fkDragStart.x - fkDragCurrent.x;
+        let dy = fkDragStart.y - fkDragCurrent.y;
+        let dist = Math.sqrt(dx*dx + dy*dy);
+        
+        if(dist > 10) {
+            // Gücü sınırla
+            let power = Math.min(dist, 150) / 10;
+            let angle = Math.atan2(dy, dx);
+            fkBall.vx = Math.cos(angle) * power;
+            fkBall.vy = Math.sin(angle) * power;
+            fkCanShoot = false;
+            fkAttempts++;
+            document.getElementById('fk-attempts').textContent = fkAttempts;
+        }
+    }
+
+    function fkGameLoop() {
+        if(!fkActive) return;
+        fkUpdate();
+        fkDraw();
+        fkAnimationId = requestAnimationFrame(fkGameLoop);
+    }
+
+    function fkUpdate() {
+        // Top hareketi
+        fkBall.x += fkBall.vx;
+        fkBall.y += fkBall.vy;
+        fkBall.vx *= fkBall.friction;
+        fkBall.vy *= fkBall.friction;
+
+        // Kaleci hareketi (topa doğru yavaşça)
+        if(!fkCanShoot || Math.abs(fkBall.vx) > 0.5 || Math.abs(fkBall.vy) > 0.5) {
+            let gkDx = fkBall.x - fkGoalkeeper.x;
+            if(Math.abs(gkDx) > 5) {
+                fkGoalkeeper.x += Math.sign(gkDx) * fkGoalkeeper.speed;
+            }
+            // Kaleci sınırları
+            fkGoalkeeper.x = Math.max(FK_FIELD.goalWidth/2 - 20, Math.min(FK_FIELD.w - FK_FIELD.goalWidth/2 + 20, fkGoalkeeper.x));
+        }
+
+        // Duvarlar
+        if(fkBall.x - fkBall.radius < 0) { fkBall.x = fkBall.radius; fkBall.vx *= -0.7; }
+        if(fkBall.x + fkBall.radius > FK_FIELD.w) { fkBall.x = FK_FIELD.w - fkBall.radius; fkBall.vx *= -0.7; }
+
+        // Gol kontrolü
+        const goalLeft = (FK_FIELD.w - FK_FIELD.goalWidth) / 2;
+        const goalRight = goalLeft + FK_FIELD.goalWidth;
+
+        if(fkBall.y - fkBall.radius < FK_FIELD.goalTop && fkBall.y > 0) {
+            if(fkBall.x > goalLeft && fkBall.x < goalRight) {
+                // GOL!
+                if(fkCanShoot === false) { // sadece şut çekildiyse say
+                    fkScore++;
+                    document.getElementById('fk-score').textContent = fkScore;
+                    fkGoalFlash = 60; // 1 saniye gol yazısı
+                    resetFreekick();
+                }
+            } else {
+                fkBall.y = FK_FIELD.goalTop + fkBall.radius;
+                fkBall.vy *= -0.7;
+            }
+        }
+
+        // Alt duvar (top geri dönerse)
+        if(fkBall.y + fkBall.radius > FK_FIELD.h) {
+            fkBall.y = FK_FIELD.h - fkBall.radius;
+            fkBall.vy *= -0.7;
+        }
+
+        // Kaleci topu kurtarır mı? (basit çarpışma)
+        let gkDx = fkBall.x - fkGoalkeeper.x;
+        let gkDy = fkBall.y - fkGoalkeeper.y;
+        let gkDist = Math.sqrt(gkDx*gkDx + gkDy*gkDy);
+        if(gkDist < fkGoalkeeper.radius + fkBall.radius) {
+            // Kaleci kurtardı
+            fkBall.vx *= -0.5;
+            fkBall.vy *= -0.5;
+            fkBall.x = fkGoalkeeper.x + Math.sign(gkDx) * (fkGoalkeeper.radius + fkBall.radius + 1);
+            fkBall.y = fkGoalkeeper.y + Math.sign(gkDy) * (fkGoalkeeper.radius + fkBall.radius + 1);
+        }
+
+        // Top durduysa tekrar şut çekilebilir
+        if(Math.abs(fkBall.vx) < 0.1 && Math.abs(fkBall.vy) < 0.1 && !fkCanShoot) {
+            // Top yavaşça durdu, bir süre sonra resetle
+            setTimeout(() => {
+                if(!fkCanShoot && fkActive) {
+                    resetFreekick();
+                }
+            }, 800);
+        }
+
+        if(fkGoalFlash > 0) fkGoalFlash--;
+    }
+
+    function fkDraw() {
+        // Çim
+        fkCtx.fillStyle = '#1e3b26';
+        fkCtx.fillRect(0, 0, FK_FIELD.w, FK_FIELD.h);
+        fkCtx.fillStyle = '#23452c';
+        for(let i=0; i<FK_FIELD.h; i+=40) {
+            if((i/40) % 2 === 0) fkCtx.fillRect(0, i, FK_FIELD.w, 40);
+        }
+
+        // Kale çizgisi ve direkler
+        const goalLeft = (FK_FIELD.w - FK_FIELD.goalWidth) / 2;
+        fkCtx.strokeStyle = '#ffffff';
+        fkCtx.lineWidth = 4;
+        
+        // Kale üst çizgisi (gol çizgisi)
+        fkCtx.beginPath();
+        fkCtx.moveTo(goalLeft, FK_FIELD.goalTop);
+        fkCtx.lineTo(goalLeft + FK_FIELD.goalWidth, FK_FIELD.goalTop);
+        fkCtx.stroke();
+
+        // Direkler
+        fkCtx.beginPath();
+        fkCtx.moveTo(goalLeft, FK_FIELD.goalTop);
+        fkCtx.lineTo(goalLeft, FK_FIELD.goalTop - 30);
+        fkCtx.stroke();
+        fkCtx.beginPath();
+        fkCtx.moveTo(goalLeft + FK_FIELD.goalWidth, FK_FIELD.goalTop);
+        fkCtx.lineTo(goalLeft + FK_FIELD.goalWidth, FK_FIELD.goalTop - 30);
+        fkCtx.stroke();
+
+        // Kaleci
+        fkCtx.fillStyle = '#ffaa00';
+        fkCtx.beginPath();
+        fkCtx.arc(fkGoalkeeper.x, fkGoalkeeper.y, fkGoalkeeper.radius, 0, Math.PI*2);
+        fkCtx.fill();
+        fkCtx.strokeStyle = '#fff';
+        fkCtx.lineWidth = 2;
+        fkCtx.stroke();
+
+        // Top
+        fkCtx.fillStyle = '#ffffff';
+        fkCtx.beginPath();
+        fkCtx.arc(fkBall.x, fkBall.y, fkBall.radius, 0, Math.PI*2);
+        fkCtx.fill();
+        fkCtx.strokeStyle = '#000';
+        fkCtx.lineWidth = 1;
+        fkCtx.stroke();
+
+        // Sürükleme çizgisi
+        if(fkDragging) {
+            fkCtx.strokeStyle = '#00ff80';
+            fkCtx.lineWidth = 3;
+            fkCtx.setLineDash([5, 5]);
+            fkCtx.beginPath();
+            fkCtx.moveTo(fkDragStart.x, fkDragStart.y);
+            fkCtx.lineTo(fkDragCurrent.x, fkDragCurrent.y);
+            fkCtx.stroke();
+            fkCtx.setLineDash([]);
+
+            // Güç göstergesi
+            let dx = fkDragStart.x - fkDragCurrent.x;
+            let dy = fkDragStart.y - fkDragCurrent.y;
+            let dist = Math.sqrt(dx*dx + dy*dy);
+            let power = Math.min(dist, 150);
+            fkCtx.fillStyle = '#00ff80';
+            fkCtx.fillRect(20, FK_FIELD.h - 30, power, 10);
+        }
+
+        // Gol yazısı
+        if(fkGoalFlash > 0) {
+            fkCtx.fillStyle = 'rgba(0, 255, 128, ' + (fkGoalFlash / 60) + ')';
+            fkCtx.font = 'bold 50px Rajdhani';
+            fkCtx.textAlign = 'center';
+            fkCtx.fillText('GOL!', FK_FIELD.w/2, FK_FIELD.h/2);
+        }
+
+        // "Topa bas ve sürükle" ipucu
+        if(fkCanShoot && !fkDragging) {
+            fkCtx.fillStyle = 'rgba(255,255,255,0.5)';
+            fkCtx.font = 'bold 16px Rajdhani';
+            fkCtx.textAlign = 'center';
+            fkCtx.fillText('Topa bas, yukarı sürükle, bırak!', FK_FIELD.w/2, FK_FIELD.h - 60);
+        }
+    }
+
+    // ========== BAŞLATMA ==========
+    window.onload = () => {
+        renderPacks();
+        renderCollection();
+        
+        // Mobil dokunmatik butonlar için
+        document.querySelectorAll('.ctrl-btn').forEach(btn => {
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                btn.dispatchEvent(new Event('mousedown'));
+            }, {passive: false});
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                btn.dispatchEvent(new Event('mouseup'));
+            }, {passive: false});
+        });
+    };
+
+</script>
+</body>
+                                                          </html>
